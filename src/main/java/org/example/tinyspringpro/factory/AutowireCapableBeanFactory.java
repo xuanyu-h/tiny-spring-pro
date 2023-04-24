@@ -8,14 +8,22 @@ import java.lang.reflect.InvocationTargetException;
 public class AutowireCapableBeanFactory extends AbstractBeanFactory {
 
     @Override
-    protected Object doCreateBean(BeanDefinition beanDefinition) {
-        try {
-            var bean = beanDefinition.getBeanClass().getDeclaredConstructor().newInstance();
-            return bean;
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
+    protected Object doCreateBean(BeanDefinition beanDefinition) throws Exception {
+        var bean = createBeanInstance(beanDefinition);
+        applyPropertyValues(bean, beanDefinition);
+        return bean;
+    }
 
-        return null;
+    protected Object createBeanInstance(BeanDefinition beanDefinition) throws NoSuchMethodException,
+            InvocationTargetException, InstantiationException, IllegalAccessException {
+        return beanDefinition.getBeanClass().getDeclaredConstructor().newInstance();
+    }
+
+    protected void applyPropertyValues(Object bean, BeanDefinition beanDefinition) throws Exception {
+        for (var propertyValue : beanDefinition.getPropertyValues().getPropertyValues()) {
+            var declaredField = bean.getClass().getDeclaredField(propertyValue.getName());
+            declaredField.setAccessible(true);
+            declaredField.set(bean, propertyValue.getValue());
+        }
     }
 }
