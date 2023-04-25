@@ -5,8 +5,8 @@ public class HelloWorldService {
     private String foo;
     private String bar;
 
-    public void helloWorld() {
-        System.out.println(foo + " " + bar);
+    public String helloWorld() {
+        return foo + " " + bar;
     }
 
     public void setFoo(String foo) {
